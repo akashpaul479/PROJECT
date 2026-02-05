@@ -53,6 +53,17 @@ func ValidateStudent(student Student) error {
 	return nil
 }
 
+// CreateStudentHandler godoc
+// @Summary Create new student
+// @Description Add a new student record
+// @Tags Students
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param student body Student true "Student Data"
+// @Success 201 {object} Student
+// @Failure 400 {object} map[string]string
+// @Router /api/students [post]
 // CreateStudentHandler handles creation of a new student
 func (a *HybridHandler) CreateStudentHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -95,6 +106,14 @@ func (a *HybridHandler) CreateStudentHandler(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(students)
 }
 
+// GetStudentHandler godoc
+// @Summary Get all students
+// @Description Retrieve all students
+// @Tags Students
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} Student
+// @Router /api/students [get]
 // GetStudentHandler to get all students
 func (a *HybridHandler) GetStudentHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -122,6 +141,15 @@ func (a *HybridHandler) GetStudentHandler(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(students)
 }
 
+// GetstudentByIDHandler godoc
+// @Summary Get student by ID
+// @Tags Students
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Student ID"
+// @Success 200 {object} Student
+// @Failure 404 {object} map[string]string
+// @Router /api/students/{id} [get]
 // GetStudentByIDHandler retrives a student by id
 func (a *HybridHandler) GetstudentByIDHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract student id from URl
@@ -164,6 +192,15 @@ func (a *HybridHandler) GetstudentByIDHandler(w http.ResponseWriter, r *http.Req
 	w.Write(jsonData)
 }
 
+// UpdateStudentHandler godoc
+// @Summary Update student
+// @Tags Students
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param student body Student true "Updated Student"
+// @Success 200 {object} Student
+// @Router /api/students/{id} [put]
 // UpdateStudentHandler updates a exsisting student
 func (a *HybridHandler) UpdateStudentHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -218,6 +255,14 @@ func (a *HybridHandler) UpdateStudentHandler(w http.ResponseWriter, r *http.Requ
 	w.Write(jsonData)
 }
 
+// DeleteStudentHandler godoc
+// @Summary Delete student
+// @Tags Students
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Student ID"
+// @Success 200 {string} string "student deleted"
+// @Router /api/students/{id} [delete]
 // DeleteStudentHandler deletes a student by ID
 func (a *HybridHandler) DeleteStudentHandler(w http.ResponseWriter, r *http.Request) {
 

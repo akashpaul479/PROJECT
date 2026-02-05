@@ -1,4 +1,531 @@
+definitions:
+  collegemanagementsystem.Borrow_records:
+    properties:
+      book_id:
+        type: integer
+      borrow_date:
+        type: string
+      borrow_id:
+        type: integer
+      return_date:
+        type: string
+      user_id:
+        type: integer
+      user_type:
+        type: string
+    type: object
+  collegemanagementsystem.BorrowInfo:
+    properties:
+      book_id:
+        type: integer
+      book_type:
+        type: string
+      borrow_date:
+        type: string
+      borrow_id:
+        type: integer
+      return_date:
+        type: string
+      user_id:
+        type: integer
+      user_type:
+        type: string
+    type: object
+  collegemanagementsystem.Credentials:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  collegemanagementsystem.Lecturer:
+    properties:
+      age:
+        type: integer
+      designation:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  collegemanagementsystem.Library:
+    properties:
+      author:
+        type: string
+      available_copies:
+        type: integer
+      book_id:
+        type: integer
+      book_name:
+        type: string
+      title:
+        type: string
+    type: object
+  collegemanagementsystem.Student:
+    properties:
+      age:
+        type: integer
+      dept:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /api/Libraries/{id}:
+    get:
+      parameters:
+      - description: Library ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Library'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get library by ID
+      tags:
+      - Libraries
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Updated Library
+        in: body
+        name: library
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Library'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Library'
+      security:
+      - BearerAuth: []
+      summary: Update library
+      tags:
+      - Libraries
+  /api/borrow:
+    get:
+      description: Retrieve complete borrowing history with book details
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/collegemanagementsystem.BorrowInfo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all borrow records
+      tags:
+      - Borrow
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Borrow Record
+        in: body
+        name: record
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Borrow_records'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Borrow book
+      tags:
+      - Borrow
+  /api/lecturers:
+    get:
+      description: Retrieve all lecturers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/collegemanagementsystem.Lecturer'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get all lecturers
+      tags:
+      - Lecturers
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Lecturer Data
+        in: body
+        name: lecturer
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Lecturer'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Lecturer'
+      security:
+      - BearerAuth: []
+      summary: Create lecturer
+      tags:
+      - Lecturers
+  /api/lecturers/{id}:
+    delete:
+      parameters:
+      - description: Lecturer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: lecturer deleted
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete lecturer
+      tags:
+      - Lecturers
+    get:
+      parameters:
+      - description: Lecturer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Lecturer'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get lecturer by ID
+      tags:
+      - Lecturers
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Updated Lecturer
+        in: body
+        name: lecturer
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Lecturer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Lecturer'
+      security:
+      - BearerAuth: []
+      summary: Update lecturer
+      tags:
+      - Lecturers
+  /api/libraries:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Library Book
+        in: body
+        name: library
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Library'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Library'
+      security:
+      - BearerAuth: []
+      summary: Add library book
+      tags:
+      - Library
+  /api/libraries/{id}:
+    delete:
+      parameters:
+      - description: Library ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: library deleted
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete library
+      tags:
+      - Libraries
+  /api/return:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Return Record
+        in: body
+        name: record
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Borrow_records'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Return book
+      tags:
+      - Borrow
+  /api/students:
+    get:
+      description: Retrieve all students
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/collegemanagementsystem.Student'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get all students
+      tags:
+      - Students
+    post:
+      consumes:
+      - application/json
+      description: Add a new student record
+      parameters:
+      - description: Student Data
+        in: body
+        name: student
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Student'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Student'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create new student
+      tags:
+      - Students
+  /api/students/{id}:
+    delete:
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: student deleted
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete student
+      tags:
+      - Students
+    get:
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Student'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get student by ID
+      tags:
+      - Students
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Updated Student
+        in: body
+        name: student
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Student'
+      security:
+      - BearerAuth: []
+      summary: Update student
+      tags:
+      - Students
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT tokens in cookies
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - Authentication
+  /logout:
+    post:
+      description: Logout and clear JWT cookies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout user
+      tags:
+      - Authentication
+  /refresh:
+    post:
+      description: Generate new access token using refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh access token
+      tags:
+      - Authentication
 swagger: "2.0"

@@ -54,6 +54,15 @@ func Validatelecturer(lecturer Lecturer) error {
 	return nil
 }
 
+// CreateLecturerHandler godoc
+// @Summary Create lecturer
+// @Tags Lecturers
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param lecturer body Lecturer true "Lecturer Data"
+// @Success 201 {object} Lecturer
+// @Router /api/lecturers [post]
 // createlecturerHandler handles ctreation of a new lecturer
 func (h *HybridHandler) CreateLecturerHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -97,7 +106,15 @@ func (h *HybridHandler) CreateLecturerHandler(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(lecturers)
 }
 
-// GetLecturerHandler to get all students
+// GetLecturerHandler godoc
+// @Summary Get all lecturers
+// @Description Retrieve all lecturers
+// @Tags Lecturers
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} Lecturer
+// @Router /api/lecturers [get]
+// GetLecturerHandler to get all lecturers
 func (a *HybridHandler) GetLecturerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Execute query to fetch lecturers record
@@ -124,6 +141,15 @@ func (a *HybridHandler) GetLecturerHandler(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(lecturers)
 }
 
+// GetLecturerByIDHandler godoc
+// @Summary Get lecturer by ID
+// @Tags Lecturers
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Lecturer ID"
+// @Success 200 {object} Lecturer
+// @Failure 404 {object} map[string]string
+// @Router /api/lecturers/{id} [get]
 // GetLecturerByIDHandler retrives a lecturer by id
 func (h *HybridHandler) GetLecturerByIDHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -168,6 +194,15 @@ func (h *HybridHandler) GetLecturerByIDHandler(w http.ResponseWriter, r *http.Re
 	w.Write(jsondata)
 }
 
+// UpdateLecturerHandler godoc
+// @Summary Update lecturer
+// @Tags Lecturers
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param lecturer body Lecturer true "Updated Lecturer"
+// @Success 200 {object} Lecturer
+// @Router /api/lecturers/{id} [put]
 // updateLecturerHandler updates a exsisting lecturer
 func (h *HybridHandler) UpdateLecturerHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -222,6 +257,14 @@ func (h *HybridHandler) UpdateLecturerHandler(w http.ResponseWriter, r *http.Req
 	w.Write(jsonData)
 }
 
+// DeleteLecturerHandler godoc
+// @Summary Delete lecturer
+// @Tags Lecturers
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Lecturer ID"
+// @Success 200 {string} string "lecturer deleted"
+// @Router /api/lecturers/{id} [delete]
 // DeleteLecturerHandler deletes a lecturer by ID
 func (h *HybridHandler) DeleteLecturerHandler(w http.ResponseWriter, r *http.Request) {
 

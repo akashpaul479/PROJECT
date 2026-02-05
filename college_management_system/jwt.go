@@ -117,6 +117,16 @@ func Validation(tokenstr string) (*Claims, error) {
 	return claims, nil
 }
 
+// LoginHandler godoc
+// @Summary Login user
+// @Description Authenticate user and return JWT tokens in cookies
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param credentials body Credentials true "Login credentials"
+// @Success 200 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /login [post]
 // Login handler handles user login requests.
 // It validates credentials , generate access and refresh token , sets them in cookies and returns a success message.
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -139,6 +149,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "login succesful!"})
 }
 
+// RefreshHandler godoc
+// @Summary Refresh access token
+// @Description Generate new access token using refresh token
+// @Tags Authentication
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /refresh [post]
 // Refresh Handler handles requests to refresh the access token.
 func RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("refresh_token")
@@ -187,6 +205,13 @@ func JwtMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// LogoutHandler godoc
+// @Summary Logout user
+// @Description Logout and clear JWT cookies
+// @Tags Authentication
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /logout [post]
 // Logout Handler handles user's logout requests.
 // It clears the access token cookie and returns a success message
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {

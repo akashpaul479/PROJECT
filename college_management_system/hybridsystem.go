@@ -65,6 +65,23 @@ func AuditLog(action, entity string, id any, actor string) {
 	log.Printf("[AUDIT] action=%s entity=%s id=%v actor=%s time=%s\n", action, entity, id, actor, time.Now())
 }
 
+// @title College Management System API
+// @version 1.0
+// @description REST API for managing students, lecturers, library, and authentication.
+// @termsOfService http://example.com/terms/
+
+// @contact.name Akash Paul
+// @contact.email akash@example.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in cookie
+// @name access_token
 // main function
 func CollegeManagementSystem() {
 

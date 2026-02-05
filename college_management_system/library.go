@@ -25,12 +25,23 @@ type Library struct {
 
 // borrow_records represents a borrowing transaction
 type Borrow_records struct {
-	Borrow_id   int          `json:"borrow_id"`
-	User_id     int          `json:"user_id"`
-	User_type   string       `json:"user_type"`
-	Book_id     int          `json:"book_id"`
-	Borrow_date sql.NullTime `json:"borrow_date"`
-	Return_date sql.NullTime `json:"return_date"`
+	Borrow_id   int    `json:"borrow_id"`
+	User_id     int    `json:"user_id"`
+	User_type   string `json:"user_type"`
+	Book_id     int    `json:"book_id"`
+	Borrow_date string `json:"borrow_date"`
+	Return_date string `json:"return_date"`
+}
+
+// Create struct to store one borrow record
+type BorrowInfo struct {
+	BorrowID   int    `json:"borrow_id"`
+	UserID     int    `json:"user_id"`
+	UserType   string `json:"user_type"`
+	BookID     int    `json:"book_id"`
+	BookType   string `json:"book_type"`
+	BorrowDate string `json:"borrow_date"`
+	ReturnDate string `json:"return_date"`
 }
 
 // validate library ensures that library input data is valid before DB operations
@@ -69,15 +80,18 @@ func ValidateBorrowRecords(BR Borrow_records) error {
 	if BR.User_type == "" {
 		return fmt.Errorf("user type cannot be empty")
 	}
-	// validate return_date
-	if BR.Return_date.Valid && BR.Borrow_date.Valid {
-		if BR.Return_date.Time.Before(BR.Borrow_date.Time) {
-			return fmt.Errorf("return_date cannot be before borrow_date")
-		}
-	}
 	return nil
 }
 
+// CreateLibraryHandler godoc
+// @Summary Add library book
+// @Tags Library
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param library body Library true "Library Book"
+// @Success 201 {object} Library
+// @Router /api/libraries [post]
 // createLibraryHandler handles creation of a new library
 func (h *HybridHandler) CreateLibraryHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -117,6 +131,15 @@ func (h *HybridHandler) CreateLibraryHandler(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(libraries)
 }
 
+// GetLibraryByIDHandler godoc
+// @Summary Get library by ID
+// @Tags Libraries
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Library ID"
+// @Success 200 {object} Library
+// @Failure 404 {object} map[string]string
+// @Router /api/Libraries/{id} [get]
 // GetLibraryHandler retrives a library by id
 func (h *HybridHandler) GetLibraryByIDHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -159,6 +182,15 @@ func (h *HybridHandler) GetLibraryByIDHandler(w http.ResponseWriter, r *http.Req
 	w.Write(jsondata)
 }
 
+// UpdateLibraryHandler godoc
+// @Summary Update library
+// @Tags Libraries
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param library body Library true "Updated Library"
+// @Success 200 {object} Library
+// @Router /api/Libraries/{id} [put]
 // UpdateLibraryHandler updates an existing library record by ID
 func (h *HybridHandler) UpdateLibraryHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -205,6 +237,14 @@ func (h *HybridHandler) UpdateLibraryHandler(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(map[string]string{"status": "library updated succesfully"})
 }
 
+// DeleteLibraryHandler godoc
+// @Summary Delete library
+// @Tags Libraries
+// @Security BearerAuth
+// @Produce json
+// @Param id path int true "Library ID"
+// @Success 200 {string} string "library deleted"
+// @Router /api/libraries/{id} [delete]
 // DeleteLibraryHandler dleted a library record by ID
 func (h *HybridHandler) DeleteLibraryHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -251,6 +291,15 @@ func (h *HybridHandler) DeleteLibraryHandler(w http.ResponseWriter, r *http.Requ
 
 }
 
+// BorrowRecordsHandler godoc
+// @Summary Borrow book
+// @Tags Borrow
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param record body Borrow_records true "Borrow Record"
+// @Success 201 {object} map[string]string
+// @Router /api/borrow [post]
 // BorrowrecordsHandler handles
 func (h *HybridHandler) BorrowRecordsHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -306,6 +355,15 @@ func (h *HybridHandler) BorrowRecordsHandler(w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(map[string]string{"status": "Book borrowed!"})
 }
 
+// GetBorrowRecordsHandler godoc
+// @Summary Get all borrow records
+// @Description Retrieve complete borrowing history with book details
+// @Tags Borrow
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {array} BorrowInfo
+// @Failure 500 {object} map[string]string
+// @Router /api/borrow [get]
 // Get all borrowrecords retrives all borrow history from the database
 func (h *HybridHandler) GetBorrowRecordsHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -320,31 +378,28 @@ func (h *HybridHandler) GetBorrowRecordsHandler(w http.ResponseWriter, r *http.R
 	// close rows when functiions ends
 	defer rows.Close()
 
-	// Create struct to store one borrow record
-	type borrowInfo struct {
-		BorrowID   int          `json:"borrow_id"`
-		UserID     int          `json:"user_id"`
-		UserType   string       `json:"user_type"`
-		BookID     int          `json:"book_id"`
-		BookType   string       `json:"book_type"`
-		BorrowDate sql.NullTime `json:"borrow_date"`
-		ReturnDate sql.NullTime `json:"return_date"`
-	}
-
 	// slice to store multiple borrow records
-	var records []borrowInfo
+	var records []BorrowInfo
 
 	// loop through all database rows
 	for rows.Next() {
 
-		var r borrowInfo
+		var r BorrowInfo
+		var borrowdate, returndate sql.NullTime
 
 		// read column values into struct feilds
-		err := rows.Scan(&r.BorrowID, &r.UserID, &r.UserType, &r.BookID, &r.BookType, &r.BorrowDate, &r.ReturnDate)
+		err := rows.Scan(&r.BorrowID, &r.UserID, &r.UserType, &r.BookID, &r.BookType, &borrowdate, &returndate)
 		// if scanning fails return error
 		if err != nil {
 			http.Error(w, err.Error(), 500)
 			return
+		}
+		if borrowdate.Valid {
+			r.BorrowDate = borrowdate.Time.Format(time.RFC3339)
+		}
+
+		if returndate.Valid {
+			r.ReturnDate = returndate.Time.Format(time.RFC3339)
 		}
 
 		// add records to slice
@@ -356,6 +411,15 @@ func (h *HybridHandler) GetBorrowRecordsHandler(w http.ResponseWriter, r *http.R
 	json.NewEncoder(w).Encode(records)
 }
 
+// ReturnRecordsHandler godoc
+// @Summary Return book
+// @Tags Borrow
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param record body Borrow_records true "Return Record"
+// @Success 201 {object} map[string]string
+// @Router /api/return [post]
 // Return book
 func (h *HybridHandler) ReturnRecordsHandler(w http.ResponseWriter, r *http.Request) {
 
