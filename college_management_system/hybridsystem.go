@@ -13,6 +13,10 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+
+	_ "college_management_system/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // MySQLInstance  wraps a MySQL database connections
@@ -92,6 +96,9 @@ func CollegeManagementSystem() {
 	// Setup HTTP routers
 	r := mux.NewRouter()
 
+	//
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+
 	// Authentication routes
 	r.HandleFunc("/login", LoginHandler).Methods("POST")
 	r.HandleFunc("/refresh", RefreshHandler).Methods("POST")
@@ -118,6 +125,8 @@ func CollegeManagementSystem() {
 	// Library routes
 	api.HandleFunc("/libraries", handler.CreateLibraryHandler).Methods("POST")
 	api.HandleFunc("/libraries/{id}", handler.GetLibraryByIDHandler).Methods("GEt")
+	api.HandleFunc("/libraries/{id}", handler.UpdateLibraryHandler).Methods("PUT")
+	api.HandleFunc("/libraries/{id}", handler.DeleteLibraryHandler).Methods("DELETE")
 
 	// Borrow_records routes
 	api.HandleFunc("/borrow", handler.BorrowRecordsHandler).Methods("POST")
