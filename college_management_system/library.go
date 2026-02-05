@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -79,22 +80,30 @@ func ValidateBorrowRecords(BR Borrow_records) error {
 
 // createLibraryHandler handles creation of a new library
 func (h *HybridHandler) CreateLibraryHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Decode incoming JSON requests body
 	var libraries Library
 	if err := json.NewDecoder(r.Body).Decode(&libraries); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// validate requests payload
 	if err := ValidateLibrary(libraries); err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"Error": err.Error()})
 		return
 	}
+
+	// Insert library records into MySQL database
 	res, err := h.MySQL.db.Exec("INSERT INTO libraries (book_name , title , author , available_copies) VALUES ( ? , ? , ? , ?)", libraries.Book_name, libraries.Title, libraries.Author, libraries.Available_copies)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Auto generated id
 	id, err := res.LastInsertId()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -148,6 +157,98 @@ func (h *HybridHandler) GetLibraryByIDHandler(w http.ResponseWriter, r *http.Req
 	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsondata)
+}
+
+// UpdateLibraryHandler updates an existing library record by ID
+func (h *HybridHandler) UpdateLibraryHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Extract library id from URL
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	// Decode incoming JSON requests body
+	var libraries Library
+	if err := json.NewDecoder(r.Body).Decode(&libraries); err != nil {
+		http.Error(w, "failed to decode response", http.StatusInternalServerError)
+		return
+	}
+
+	// validate updated data
+	if err := ValidateLibrary(libraries); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// update MySQL record
+	_, err := h.MySQL.db.Exec("UPDATE libraries SET book_name=? , title=? , author=? , available_copies=? WHERE book_id=?", libraries.Book_name, libraries.Title, libraries.Author, libraries.Available_copies, id)
+	if err != nil {
+		http.Error(w, "failed to update", http.StatusInternalServerError)
+		return
+	}
+	libraries.Book_id, _ = strconv.Atoi(id)
+
+	// refresh redis cache
+	jsonData, err := json.Marshal(libraries)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Log update actions
+	go LogActivity("UPDATE_STUDENT", "system")
+	go AuditLog("UPDATE", "STUDENT", libraries.Book_id, "system")
+
+	go h.Redis.Client.Set(h.Ctx, id, jsonData, 10*time.Second)
+
+	// send response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"status": "library updated succesfully"})
+}
+
+// DeleteLibraryHandler dleted a library record by ID
+func (h *HybridHandler) DeleteLibraryHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Extract library id from URl
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	IdInt, _ := strconv.Atoi(id)
+	// delete borrow_records
+	_, err := h.MySQL.db.Exec("DELETE FROM borrow_records WHERE book_id=?", IdInt)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Delete library
+	res, err := h.MySQL.db.Exec("DELETE FROM libraries WHERE book_id=?", IdInt)
+	if err != nil {
+		http.Error(w, "unable to delete", http.StatusInternalServerError)
+		return
+	}
+
+	// check if library exsists
+	rows, err := res.RowsAffected()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if rows == 0 {
+		http.Error(w, "library not found", http.StatusNotFound)
+		return
+	}
+
+	// Invalid redis cache
+	go h.Redis.Client.Del(h.Ctx, id)
+
+	// Log delete response
+	go LogActivity("DELETE_STUDENTS", "system")
+	go AuditLog("DELETE", "STUDENT", IdInt, "system")
+
+	// send response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"status": "library daleted successfully!"})
+
 }
 
 // BorrowrecordsHandler handles
