@@ -40,19 +40,19 @@ I created this project to learn:
 # Project Structure
 college_management_system/
 
-├── main.go                  -> Program Entry Point
+├── main.go                  -> Program Entry Point  
 │
-├── college_management_system/
-│   ├── server.go            -> Server Setup
-│   ├── auth.go              -> Login & JWT
-│   ├── student.go           -> Student APIs
-│   ├── lecturer.go          -> Lecturer APIs
-│   ├── library.go           -> Library APIs
-│   ├── borrow.go            -> Borrow System
-│   └── middleware.go        -> JWT Middleware
+├── college_management_system/  
+│   ├── server.go            -> Server Setup  
+│   ├── auth.go              -> Login & JWT  
+│   ├── student.go           -> Student APIs  
+│   ├── lecturer.go          -> Lecturer APIs  
+│   ├── library.go           -> Library APIs  
+│   ├── borrow.go            -> Borrow System  
+│   └── middleware.go        -> JWT Middleware  
 │
-├── docs/                    -> Swagger Files
-├── .env                     -> Environment Variables
+├── docs/                    -> Swagger Files  
+├── .env                     -> Environment Variables  
 └── README.md  
 
 - This structure helps me keep each feature in a separate file. 
