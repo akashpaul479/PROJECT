@@ -133,13 +133,13 @@ func (h *HybridHandler) CreateLibraryHandler(w http.ResponseWriter, r *http.Requ
 
 // GetLibraryByIDHandler godoc
 // @Summary Get library by ID
-// @Tags Libraries
+// @Tags Library
 // @Security BearerAuth
 // @Produce json
 // @Param id path int true "Library ID"
 // @Success 200 {object} Library
 // @Failure 404 {object} map[string]string
-// @Router /api/Libraries/{id} [get]
+// @Router /api/libraries/{id} [get]
 // GetLibraryHandler retrives a library by id
 func (h *HybridHandler) GetLibraryByIDHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -184,19 +184,22 @@ func (h *HybridHandler) GetLibraryByIDHandler(w http.ResponseWriter, r *http.Req
 
 // UpdateLibraryHandler godoc
 // @Summary Update library
-// @Tags Libraries
+// @Tags Library
 // @Security BearerAuth
 // @Accept json
 // @Produce json
+// @Param id path int true "Library ID"
 // @Param library body Library true "Updated Library"
-// @Success 200 {object} Library
-// @Router /api/Libraries/{id} [put]
+// @Success 200 {object} map[string]string
+// @Router /api/libraries/{id} [put]
 // UpdateLibraryHandler updates an existing library record by ID
 func (h *HybridHandler) UpdateLibraryHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Extract library id from URL
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	IdINT, _ := strconv.Atoi(id)
 
 	// Decode incoming JSON requests body
 	var libraries Library
@@ -212,9 +215,9 @@ func (h *HybridHandler) UpdateLibraryHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	// update MySQL record
-	_, err := h.MySQL.db.Exec("UPDATE libraries SET book_name=? , title=? , author=? , available_copies=? WHERE book_id=?", libraries.Book_name, libraries.Title, libraries.Author, libraries.Available_copies, id)
+	_, err := h.MySQL.db.Exec("UPDATE libraries SET book_name=? , title=? , author=? , available_copies=? WHERE book_id=?", libraries.Book_name, libraries.Title, libraries.Author, libraries.Available_copies, IdINT)
 	if err != nil {
-		http.Error(w, "failed to update", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	libraries.Book_id, _ = strconv.Atoi(id)
@@ -239,7 +242,7 @@ func (h *HybridHandler) UpdateLibraryHandler(w http.ResponseWriter, r *http.Requ
 
 // DeleteLibraryHandler godoc
 // @Summary Delete library
-// @Tags Libraries
+// @Tags Library
 // @Security BearerAuth
 // @Produce json
 // @Param id path int true "Library ID"
