@@ -80,54 +80,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/Libraries/{id}:
-    get:
-      parameters:
-      - description: Library ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/collegemanagementsystem.Library'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get library by ID
-      tags:
-      - Libraries
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: Updated Library
-        in: body
-        name: library
-        required: true
-        schema:
-          $ref: '#/definitions/collegemanagementsystem.Library'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/collegemanagementsystem.Library'
-      security:
-      - BearerAuth: []
-      summary: Update library
-      tags:
-      - Libraries
   /api/borrow:
     get:
       description: Retrieve complete borrowing history with book details
@@ -323,7 +275,61 @@ paths:
       - BearerAuth: []
       summary: Delete library
       tags:
-      - Libraries
+      - Library
+    get:
+      parameters:
+      - description: Library ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/collegemanagementsystem.Library'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get library by ID
+      tags:
+      - Library
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Library ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Library
+        in: body
+        name: library
+        required: true
+        schema:
+          $ref: '#/definitions/collegemanagementsystem.Library'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update library
+      tags:
+      - Library
   /api/return:
     post:
       consumes:
